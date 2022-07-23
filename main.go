@@ -13,6 +13,10 @@ var up = my_websocket.Upgrader{
 	WriteBufferSize:  2048,
 }
 
+type js struct {
+	jss string `json:"jss"`
+}
+
 func main() {
 	r := gin.Default()
 	r.GET("/ws", ping)
@@ -23,20 +27,17 @@ func ping(c *gin.Context) {
 	//升级get请求为webSocket协议
 	ws, err := up.Upgrade(c.Writer, c.Request)
 	if err != nil {
-		log.Println("up" + err)
+		log.Println("up" + err.Error())
 		return
 	}
+	js := js{jss: "123"}
 	for {
-		//读取ws中的数据
-		mt, message, err := ws.ReadMsg()
+		//写入ws数据
+		err = ws.WriteJSON(js)
 		if err != nil {
+			log.Println(err)
 			break
 		}
-		log.Println(mt, message)
-		////写入ws数据
-		//err = ws.WriteJSON(gin.H{"json":"json"})
-		//if err != nil {
-		//	break
-		//}
+		time.Sleep(time.Second)
 	}
 }
