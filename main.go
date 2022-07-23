@@ -1,26 +1,42 @@
 package main
 
 import (
-	"fmt"
-	"math/rand"
+	"github.com/gin-gonic/gin"
+	"log"
+	"mywebsocket/my_websocket"
 	"time"
 )
 
-func main() {
-	msg := make([]byte, 4)
-	m := []byte(CreatMuskKey())
-	fmt.Println(m)
-	msg = append(msg, m...)
-	fmt.Println(msg)
+var up = my_websocket.Upgrader{
+	HandshakeTimeout: time.Second * 5,
+	ReadBufferSize:   2048,
+	WriteBufferSize:  2048,
 }
 
-func CreatMuskKey() string {
-	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	b := make([]rune, 4)
-	for i := range b {
-		b[i] = letterRunes[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(letterRunes))]
-		//休眠一纳秒
-		time.Sleep(time.Nanosecond)
+func main() {
+	r := gin.Default()
+	r.GET("/ws", ping)
+	r.Run(":9924")
+}
+
+func ping(c *gin.Context) {
+	//升级get请求为webSocket协议
+	ws, err := up.Upgrade(c.Writer, c.Request)
+	if err != nil {
+		log.Println("up" + err)
+		return
 	}
-	return string(b)
+	for {
+		//读取ws中的数据
+		mt, message, err := ws.ReadMsg()
+		if err != nil {
+			break
+		}
+		log.Println(mt, message)
+		////写入ws数据
+		//err = ws.WriteJSON(gin.H{"json":"json"})
+		//if err != nil {
+		//	break
+		//}
+	}
 }
