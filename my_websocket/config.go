@@ -48,4 +48,5 @@ type Writer struct {
 	maskst   int    //maskKey开始的下标
 	maskKey  []byte //maskKey
 	restDate int    //剩余数据大小
+	ismain   bool   //是否主片
 }

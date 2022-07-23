@@ -2,7 +2,6 @@ package my_websocket
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"time"
 )
@@ -41,7 +40,6 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (conn *MyConn
 	//从http.ResponseWriter重新拿到conn 出错就返回
 	hijcakcer, ok := w.(http.Hijacker)
 	if !ok {
-		log.Println(w)
 		http.Error(w, http.StatusText(500), 500)
 		return &MyConn{}, errors.New("upgrade conn err:get conn")
 	}
@@ -49,7 +47,6 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (conn *MyConn
 
 	//拿到浏览器生成的密钥 并与Websocket的Magic String拼接
 	wskey := append([]byte(r.Header.Get("Sec-Websocket-Key")), []byte(MagicString)...)
-	log.Println(string(wskey))
 	respAccept := SHA1AndBase64(string(wskey))
 
 	//回复报文 超时返回

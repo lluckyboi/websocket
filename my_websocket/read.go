@@ -2,6 +2,7 @@ package my_websocket
 
 import (
 	"errors"
+	"log"
 	"strconv"
 )
 
@@ -9,6 +10,8 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 	//按字节读
 	msg := make([]byte, conn.ReadBufferSize)
 	n, err := conn.conn.Read(msg)
+	log.Printf("read  p :%b", msg)
+
 	if err != nil {
 		return -1, nil, errors.New("read data err:" + err.Error())
 	}
@@ -27,10 +30,10 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 	//掩码标识
 	mask := msg[1] >> 7
 	if mask != 1 {
-
+		return -1, nil, errors.New("no mask")
 	}
 	//数据长度
-	playloadLength := msg[1] << 1
+	playloadLength := msg[1] - 128
 	var trueLength int64
 
 	//找出masking-key起始字节索引
@@ -60,6 +63,7 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 	for i := 0; i <= 3; i++ {
 		maskKey[i] = msg[maskst+i]
 	}
+
 	//数据开始位置
 	datast := int64(maskst) + 4
 
@@ -67,6 +71,7 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 	//如果分片 接受完整数据 最多2048片
 	msbuffer := make([]byte, conn.ReadBufferSize)
 	if bit[1] == 0 {
+		log.Println("将分片读取")
 		i := 0
 		for ; i < 2048; i++ {
 			//读数据 错误返回 否则追加数据
@@ -113,16 +118,16 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 		//收到文本消息返回
 		messagetype = opcode
 		//m.content=读取到的内容
-		copy(p, msg[datast:datast+trueLength-1])
+		copy(p, data[:trueLength])
 	} else if opcode == BinaryMessage {
 		//收到二进制消息返回
 		messagetype = opcode
 		//m.content=读取到的内容
-		copy(p, msg[datast:datast+trueLength-1])
+		copy(p, data[:trueLength])
 	} else if opcode == CloseMessage {
 		//收到关闭消息
 		messagetype = opcode
-		return opcode, data, errors.New("received close message")
+		return opcode, data, errors.New("received close message:" + string(data))
 	} else {
 		//读取到其他消息 返回错误
 		return -1, data, errors.New("unknown data type:" + strconv.Itoa(opcode))
