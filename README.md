@@ -1,6 +1,6 @@
 # 🎉MyWebsocket
 
-![pass](https://img.shields.io/badge/checks-pass-green) ![pass](https://img.shields.io/badge/checks-pass-green)
+![pass](https://img.shields.io/badge/building-pass-green) ![pass](https://img.shields.io/badge/checks-pass-green)
 #### ✨**已经实现：**
 
 - [x] 升级协议
