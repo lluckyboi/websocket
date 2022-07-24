@@ -4,19 +4,19 @@
 
 #### ✨**已经实现：**
 
-- [x]
+- [x]升级协议
 ```go
   func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (conn *MyConn, err error)
   //通过填写upgrader 升级HTTP连接为websocket
   ```
 
-- [x]
+- [x]读取消息
 ```go
   func (conn *MyConn)ReadMsg(opts ...Option)(messagetype int, p []byte, err error)
   //从连接中读取消息 返回数据类型、大小和错误
   ```
 
-- [x] 
+- [x]写入JSON、String、Binary
 ```go
   func (conn *MyConn) WriteJSON(v interface{}, opts ...Option) error
   func (conn *MyConn) WriteString(s string, opts ...Option) error
@@ -24,7 +24,7 @@
   //将数据写入连接
   ```
 
-- [x]
+- [x]关闭连接
 ```go
   func (conn *MyConn) Close()
   //关闭连接
