@@ -46,7 +46,7 @@ func ping(c *gin.Context) {
 			break
 		}
 		log.Println("received:", string(ms))
-		err = ws.WriteString("{\"name\":\"123\"}")
+		err = ws.WriteString("hello my websocket")
 		if err != nil {
 			log.Println(err)
 			break
