@@ -20,9 +20,10 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 	if err != nil {
 		return -1, nil, errors.New("read data err:" + err.Error())
 	}
-	//如果消息大小大于ReadBufferSize 一次读不完
+	//如果消息大小大于ReadBufferSize 自动扩容
 	if n > conn.ReadBufferSize {
-		return -1, nil, errors.New("ReadBufferSize is small than data size " + strconv.Itoa(conn.ReadBufferSize) + " < " + strconv.Itoa(n))
+		m := make([]byte, n-conn.ReadBufferSize)
+		msg = append(msg, m...)
 	}
 
 	//数据帧读取
