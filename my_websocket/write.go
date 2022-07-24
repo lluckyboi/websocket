@@ -132,8 +132,7 @@ func (conn *MyConn) WriteString(s string, opts ...Option) error {
 	}
 	conn.Opts.WriteTimeOut = op.WriteTimeOut
 
-	msg := make([]byte, conn.WriteBufferSize)
-	msg = []byte(s)
+	msg := []byte(s)
 
 	//初始化
 	ts := &Writer{
@@ -197,7 +196,7 @@ func (conn *MyConn) WriteString(s string, opts ...Option) error {
 				p[0] = 128
 			}
 
-			//todo 服务器发给客户端不应该掩码
+			//服务器发给客户端不应该掩码
 			//处理Payload len
 			if ts.restDate < 125 {
 				p[1] = byte(ts.restDate)
@@ -235,7 +234,7 @@ func (conn *MyConn) WriteString(s string, opts ...Option) error {
 	return nil
 }
 
-func (conn *MyConn) WriteBinary(s []byte, opts ...Option) error {
+func (conn *MyConn) WriteBinary(msg []byte, opts ...Option) error {
 	//可选参数 设置读写时间
 	op := ConnOptions{
 		WriteTimeOut: time.Second,
@@ -244,9 +243,6 @@ func (conn *MyConn) WriteBinary(s []byte, opts ...Option) error {
 		option(&op)
 	}
 	conn.Opts.WriteTimeOut = op.WriteTimeOut
-
-	msg := make([]byte, conn.WriteBufferSize)
-	msg = []byte(s)
 
 	//初始化
 	ts := &Writer{
@@ -261,9 +257,9 @@ func (conn *MyConn) WriteBinary(s []byte, opts ...Option) error {
 		p := make([]byte, conn.WriteBufferSize)
 		//剩余数据大于缓冲 分片传输 协议头最多占用14字节
 		if ts.restDate >= conn.WriteBufferSize-14 {
-			// 0 0 0 0 0 0 0 1 表示无扩展协议 传输分片 类型text 0表示当前为分片
+			// 0 0 0 0 0 0 0 2 表示无扩展协议 传输分片 类型binary 0表示当前为分片
 			if ts.ismain {
-				p[0] = 1
+				p[0] = 2
 			} else {
 				p[0] = 0
 			}
@@ -301,16 +297,16 @@ func (conn *MyConn) WriteBinary(s []byte, opts ...Option) error {
 				return err
 			}
 		} else { //剩余数据小于缓冲 一次发完
-			// 1 0 0 0 0 0 0 1 表示无扩展协议 传输不分片 类型text
+			// 1 0 0 0 0 0 0 2 表示无扩展协议 传输不分片 类型binary
 			// 1 0 0 0 0 0 0 0 表示当前为最后一片 类型扩展数据
 			//是否主片
 			if ts.ismain {
-				p[0] = 129
+				p[0] = 130
 			} else {
 				p[0] = 128
 			}
 
-			//todo 服务器发给客户端不应该掩码
+			//服务器发给客户端不应该掩码
 			//处理Payload len
 			if ts.restDate < 125 {
 				p[1] = byte(ts.restDate)
