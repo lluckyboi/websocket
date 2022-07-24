@@ -5,13 +5,13 @@
 
 - [x] 升级协议
 ```go
-  func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (conn *MyConn, err error)
+  func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request,opts ...Option) (conn *MyConn, err error)
   //通过填写upgrader 升级HTTP连接为websocket
   ```
 
 - [x] 读取消息
 ```go
-  func (conn *MyConn)ReadMsg(opts ...Option)(messagetype int, p []byte, err error)
+  func (conn *MyConn)ReadMsg()(messagetype int, p []byte, err error)
   //从连接中读取消息 返回数据类型、大小和错误
   ```
 
@@ -27,10 +27,15 @@
   func (conn *MyConn) Close()
   //关闭连接
   ```
+- [x] 心跳
+
+Upgrade方法通过**可选参数**自定义心跳超时时间 (默认十秒)
+
+用户还可用通过WithPongHandler方法自定义服务端PongHandler
 
 #### 正在实现：
 
-- [ ] 心跳
+
 - [ ] 文件传输
 - [ ] 扩展协议
 
