@@ -134,6 +134,9 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 		messagetype = opcode
 		copy(p, data[:trueLength])
 		return opcode, data, errors.New("received close message:" + string(data))
+	} else if opcode == FileImageMessage {
+		messagetype = opcode
+		copy(p, data[:trueLength])
 	} else {
 		//读取到其他消息 返回错误
 		return -1, data, errors.New("unknown data type:" + strconv.Itoa(opcode))

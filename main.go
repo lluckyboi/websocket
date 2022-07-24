@@ -51,7 +51,6 @@ func ping(c *gin.Context) {
 			log.Println(err)
 			break
 		}
-
 		if string(ms) == "close" {
 			break
 		}

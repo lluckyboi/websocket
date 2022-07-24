@@ -9,6 +9,7 @@ import (
 const (
 	TextMessage        = 1
 	BinaryMessage      = 2
+	FileImageMessage   = 3
 	CloseMessage       = 8
 	PingMessage        = 9
 	PongMessage        = 10
