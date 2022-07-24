@@ -6,17 +6,31 @@ import (
 	"time"
 )
 
-func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (conn *MyConn, err error) {
+func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, opts ...Option) (conn *MyConn, err error) {
 	conn = &MyConn{}
+	op := ConnOptions{}
+	for _, option := range opts {
+		option(&op)
+	}
+	if conn.Opts.PingWait == time.Duration(0) {
+		conn.Opts.PingWait = DefaultPingWait
+	}
+	conn.PingTimeOut = time.Now().Add(conn.Opts.PingWait)
+
 	//设置默认值
 	if u.ReadBufferSize == 0 {
 		u.ReadBufferSize = DefaultReadBuffer
 	}
 	if u.WriteBufferSize == 0 {
-		u.WriteBufferSize = DefaultReadBuffer
+		u.WriteBufferSize = DefaultWriteBuffer
 	}
 	if u.HandshakeTimeout == time.Duration(0) {
 		u.HandshakeTimeout = DefaultTimeOut
+	}
+	if u.CheckOrigin == nil {
+		u.CheckOrigin = func(r *http.Request) bool {
+			return true
+		}
 	}
 
 	conn.ReadBufferSize = u.ReadBufferSize
@@ -35,6 +49,10 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (conn *MyConn
 	}
 	if r.Header.Get("Sec-Websocket-Version") != WSVersion {
 		return &MyConn{}, errors.New("the version is not 13")
+	}
+	//check-origin
+	if !u.CheckOrigin(r) {
+		return &MyConn{}, errors.New("check origin false")
 	}
 
 	//从http.ResponseWriter重新拿到conn 出错就返回

@@ -17,9 +17,8 @@ const (
 	DefaultTimeOut     = time.Second * 180
 	DefaultReadBuffer  = 4096
 	DefaultWriteBuffer = 4096
+	DefaultPingWait    = 10 * time.Second
 )
-
-type Handler func(conn *MyConn)
 
 type Msg struct {
 	Typ     int
@@ -29,6 +28,7 @@ type Msg struct {
 type MyConn struct {
 	conn                            net.Conn
 	ReadBufferSize, WriteBufferSize int
+	PingTimeOut                     time.Time
 	Opts                            ConnOptions
 }
 
@@ -41,6 +41,8 @@ type Upgrader struct {
 
 	// 指定 http 的错误响应函数，如果没有设置 Error 则，会生成 http.Error 的错误响应。
 	Error func(w http.ResponseWriter, r *http.Request, status int, reason error)
+
+	CheckOrigin func(r *http.Request) bool
 }
 
 type Writer struct {
@@ -53,7 +55,11 @@ type Writer struct {
 }
 
 type ConnOptions struct {
-	ReadTimeOut, WriteTimeOut time.Duration
+	WriteTimeOut time.Duration
+	PingWait     time.Duration
+	PongHandler  PongHandler
 }
 
 type Option func(*ConnOptions)
+
+type PongHandler func()

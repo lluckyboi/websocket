@@ -29,14 +29,18 @@ func CreatMuskKey() []byte {
 	return []byte(string(b))
 }
 
-func WithReadTimeout(timeout time.Duration) Option {
-	return func(o *ConnOptions) {
-		o.ReadTimeOut = timeout
-	}
-}
-
 func WithWriteTimeout(timeout time.Duration) Option {
 	return func(o *ConnOptions) {
 		o.WriteTimeOut = timeout
 	}
+}
+
+func WithPingWait(timeout time.Duration) Option {
+	return func(o *ConnOptions) {
+		o.PingWait = timeout
+	}
+}
+
+func (conn *MyConn) WithPongHandler(handler PongHandler) {
+	conn.Opts.PongHandler = handler
 }

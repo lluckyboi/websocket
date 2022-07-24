@@ -4,17 +4,13 @@ import (
 	"errors"
 	"log"
 	"strconv"
-	"time"
 )
 
-func (conn *MyConn) ReadMsg(opts ...Option) (messagetype int, p []byte, err error) {
-	op := ConnOptions{
-		ReadTimeOut: 30 * time.Second,
+func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
+	err = conn.conn.SetDeadline(conn.PingTimeOut)
+	if err != nil {
+		return 0, nil, err
 	}
-	for _, option := range opts {
-		option(&op)
-	}
-	conn.Opts.ReadTimeOut = op.ReadTimeOut
 
 	//按字节读
 	msg := make([]byte, conn.ReadBufferSize)
@@ -123,7 +119,7 @@ func (conn *MyConn) ReadMsg(opts ...Option) (messagetype int, p []byte, err erro
 	if opcode == PingMessage {
 		conn.pingHandler()
 	} else if opcode == PongMessage {
-		conn.pongHandler()
+
 	} else if opcode == TextMessage {
 		//收到文本消息返回
 		messagetype = opcode
