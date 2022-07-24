@@ -36,15 +36,17 @@ func (conn *MyConn) WriteBinary(msg []byte, opts ...Option)error
 
 - [x] 心跳
 
-Upgrade方法通过**可选参数**自定义心跳超时时间 (默认十秒)
+Upgrade方法通过**可选参数**自定义心跳超时时间 (默认30秒)
 
 用户还可用通过WithPongHandler方法自定义服务端PongHandler
 
+- [ ] 文件传输(半成品)
+
+由于使用了自定义非控制帧，传输时会被客户端立即关闭连接
+
 ## 🛠正在实现：
 
-
-- [ ] 文件传输
-- [ ] 扩展协议
+- [ ] 分布式websocket
 
 ## 🧪实现原理
 

@@ -15,9 +15,9 @@ const (
 	WSVersion          = "13"
 	MagicString        = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 	DefaultTimeOut     = time.Second * 180
-	DefaultReadBuffer  = 4096
-	DefaultWriteBuffer = 4096
-	DefaultPingWait    = 10 * time.Second
+	DefaultReadBuffer  = 65535 + 125
+	DefaultWriteBuffer = 65535 + 125
+	DefaultPingWait    = 30 * time.Second
 )
 
 type Msg struct {

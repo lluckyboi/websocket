@@ -46,19 +46,11 @@ func ping(c *gin.Context) {
 			break
 		}
 		log.Println("received:", string(ms))
-
 		err = ws.WriteString("{\"name\":\"123\"}")
 		if err != nil {
 			log.Println(err)
 			break
 		}
-
-		err = ws.WriteJSON(&monster)
-		if err != nil {
-			log.Println(err)
-			break
-		}
-		time.Sleep(time.Second)
 
 		if string(ms) == "close" {
 			break
