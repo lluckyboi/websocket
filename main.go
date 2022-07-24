@@ -13,17 +13,14 @@ var up = my_websocket.Upgrader{
 	WriteBufferSize:  2048,
 }
 
-// 定义一个结构体
 type Monster struct {
-	Name string `json:"monster_name"` // 反射机制
-	Age  string `json:"monster_age"`
+	//Name string `json:"monster_name"`
+	//Age  string `json:"monster_age"`
+	Nm string `json:"nm"`
 }
 
-// 将结构体进行序列化
-
 var monster = Monster{
-	Name: "sda",
-	Age:  "50",
+	Nm: "sl",
 }
 
 func main() {
@@ -39,18 +36,31 @@ func ping(c *gin.Context) {
 		log.Println("up" + err.Error())
 		return
 	}
+	defer ws.Close()
 
 	for {
 		//读取ws中的数据
-		_, _, err := ws.ReadMsg()
+		_, ms, err := ws.ReadMsg()
 		if err != nil {
 			log.Println(err)
 			break
 		}
-		//写入ws数据
+		log.Println("received:", string(ms))
+
+		err = ws.WriteString("{\"name\":\"123\"}")
+		if err != nil {
+			log.Println(err)
+			break
+		}
+
 		err = ws.WriteJSON(&monster)
 		if err != nil {
 			log.Println(err)
+			break
+		}
+		time.Sleep(time.Second)
+
+		if string(ms) == "close" {
 			break
 		}
 	}

@@ -4,9 +4,18 @@ import (
 	"errors"
 	"log"
 	"strconv"
+	"time"
 )
 
-func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
+func (conn *MyConn) ReadMsg(opts ...Option) (messagetype int, p []byte, err error) {
+	op := ConnOptions{
+		ReadTimeOut: 30 * time.Second,
+	}
+	for _, option := range opts {
+		option(&op)
+	}
+	conn.Opts.ReadTimeOut = op.ReadTimeOut
+
 	//按字节读
 	msg := make([]byte, conn.ReadBufferSize)
 	n, err := conn.conn.Read(msg)
@@ -47,14 +56,15 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 	} else if playloadLength == 126 {
 		maskst = 4
 		//后面补充16位
-		trueLength = int64(125)<<16 + int64(msg[2])<<8 + int64(msg[3])
+		trueLength = int64(playloadLength) + int64(msg[2])<<8 + int64(msg[3])
 	} else if playloadLength == 127 {
 		maskst = 10
 		//后面补充64位
-		//trueLength=int64(125)<<64+int64(msg[2])<<56+int64(msg[3])<<48
-		//trueLength+=int64(msg[4])<<40+int64(msg[5])<<32+int64(msg[6])<<24<<int64(msg[7])<<16
-		//trueLength+=int64(msg[8])<<8+int64(msg[9])
+		trueLength = int64(playloadLength) + int64(msg[2])<<56 + int64(msg[3])<<48
+		trueLength += int64(msg[4])<<40 + int64(msg[5])<<32 + int64(msg[6])<<24<<int64(msg[7])<<16
+		trueLength += int64(msg[8])<<8 + int64(msg[9])
 	}
+
 	//数据
 	data := make([]byte, trueLength)
 
@@ -117,16 +127,15 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 	} else if opcode == TextMessage {
 		//收到文本消息返回
 		messagetype = opcode
-		//m.content=读取到的内容
 		copy(p, data[:trueLength])
 	} else if opcode == BinaryMessage {
 		//收到二进制消息返回
 		messagetype = opcode
-		//m.content=读取到的内容
 		copy(p, data[:trueLength])
 	} else if opcode == CloseMessage {
 		//收到关闭消息
 		messagetype = opcode
+		copy(p, data[:trueLength])
 		return opcode, data, errors.New("received close message:" + string(data))
 	} else {
 		//读取到其他消息 返回错误

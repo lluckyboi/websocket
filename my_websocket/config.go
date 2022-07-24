@@ -7,15 +7,16 @@ import (
 )
 
 const (
-	TextMessage       = 1
-	BinaryMessage     = 2
-	CloseMessage      = 8
-	PingMessage       = 9
-	PongMessage       = 10
-	WSVersion         = "13"
-	MagicString       = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-	DefaultTimeOut    = time.Second * 180
-	DefaultReadBuffer = 2048
+	TextMessage        = 1
+	BinaryMessage      = 2
+	CloseMessage       = 8
+	PingMessage        = 9
+	PongMessage        = 10
+	WSVersion          = "13"
+	MagicString        = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+	DefaultTimeOut     = time.Second * 180
+	DefaultReadBuffer  = 4096
+	DefaultWriteBuffer = 4096
 )
 
 type Handler func(conn *MyConn)
@@ -28,7 +29,7 @@ type Msg struct {
 type MyConn struct {
 	conn                            net.Conn
 	ReadBufferSize, WriteBufferSize int
-	//handler
+	Opts                            ConnOptions
 }
 
 type Upgrader struct {
@@ -50,3 +51,9 @@ type Writer struct {
 	restDate int    //剩余数据大小
 	ismain   bool   //是否主片
 }
+
+type ConnOptions struct {
+	ReadTimeOut, WriteTimeOut time.Duration
+}
+
+type Option func(*ConnOptions)

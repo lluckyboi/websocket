@@ -13,7 +13,7 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (conn *MyConn
 		u.ReadBufferSize = DefaultReadBuffer
 	}
 	if u.WriteBufferSize == 0 {
-		u.ReadBufferSize = DefaultReadBuffer
+		u.WriteBufferSize = DefaultReadBuffer
 	}
 	if u.HandshakeTimeout == time.Duration(0) {
 		u.HandshakeTimeout = DefaultTimeOut
