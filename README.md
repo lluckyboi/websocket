@@ -107,7 +107,7 @@ func ping(c *gin.Context) {
 func (conn *MyConn)SetIOLog(need bool)
 ```
 ## 🛠正在实现：
-- [ ] 适配客户端DEMO
+- [ ] 客户端封装
 
 - [ ] 分布式websocket
 ## 🧪实现原理
