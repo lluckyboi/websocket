@@ -99,7 +99,7 @@ func ping(c *gin.Context) {
 - [x] 文件传输(需要客户端设置自定义解析)
 
 ```go
- // 通过binary格式传输，可与客户端灵活自定义
+ // 暂时通过binary格式传输，其余格式可与客户端约定
  func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error
 ```
   📃分片传输效果如下:
