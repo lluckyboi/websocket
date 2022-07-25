@@ -12,23 +12,30 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, opts ...Optio
 	for _, option := range opts {
 		option(&op)
 	}
+	conn.Opts.PingWait = op.PingWait
+	conn.Opts.IOLog = op.IOLog
+	conn.Opts.PongHandler = op.PongHandler
+
 	if conn.Opts.PingWait == time.Duration(0) {
 		conn.Opts.PingWait = DefaultPingWait
 	}
+	if conn.Opts.PongHandler == nil {
+		conn.Opts.PongHandler = func() {
+			return
+		}
+	}
+
 	conn.PingTimeOut = func() time.Time {
 		return time.Now().Add(conn.Opts.PingWait)
 	}
 
 	//设置默认值
-	if u.ReadBufferSize == 0 {
-		u.ReadBufferSize = DefaultReadBuffer
-	}
-	if u.WriteBufferSize == 0 {
-		u.WriteBufferSize = DefaultWriteBuffer
-	}
-	if u.HandshakeTimeout == time.Duration(0) {
-		u.HandshakeTimeout = DefaultTimeOut
-	}
+	u.ReadBufferSize = DefaultReadBuffer
+
+	u.WriteBufferSize = DefaultWriteBuffer
+
+	u.HandshakeTimeout = DefaultTimeOut
+
 	if u.CheckOrigin == nil {
 		u.CheckOrigin = func(r *http.Request) bool {
 			return true
@@ -36,6 +43,7 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, opts ...Optio
 	}
 
 	conn.ReadBufferSize = u.ReadBufferSize
+
 	conn.WriteBufferSize = u.WriteBufferSize
 
 	//检查方法

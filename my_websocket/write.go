@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-func (conn *MyConn) Write(msg []byte, opcode int) error {
+func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
 	//初始化
 	ts := &Writer{
 		idx:      0,
 		datast:   0,
 		maskKey:  make([]byte, 4),
-		restDate: len(msg),
+		restDate: int64(len(msg)),
 		ismain:   true,
 	}
 	p := make([]byte, conn.WriteBufferSize)
@@ -28,7 +28,6 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 	for {
 		//如果还是不够 分片传输
 		if ts.restDate >= conn.WriteBufferSize+DefaultWriteBuffer-14 {
-			fmt.Println("剩余数据大于缓冲 分片传输中，剩余大小:", ts.restDate, "B")
 			//  0 0 0 0 0 0 0 1 表示无扩展协议 传输分片 类型text 如果末尾0表示当前为分片
 			//  0 0 0 0 0 0 0 2 表示无扩展协议 传输分片 类型binary 如果末尾0表示当前为分片
 			if ts.ismain {
@@ -37,17 +36,17 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 				p[0] = 0
 			}
 
-			//长度扩展两个字节
-			p[1] = 126
+			//长度扩展8个字节
+			p[1] = 127
 			ts.datast = 4
 
-			var i = 0
+			var i int64 = 0
 			for ; i < conn.WriteBufferSize-ts.datast; i++ {
 				p[ts.datast+i] = msg[ts.idx+i]
 			}
 			//设置长度
 			p[3] = byte(i % 128)
-			p[2] = byte(i - (i % 128))
+			p[2] = byte((i - (i % 128)) >> 8)
 
 			//记录传输位置
 			ts.idx += i
@@ -64,10 +63,22 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 			}
 			//写入
 			ts.ismain = false
-			_, err := conn.conn.Write(p[:i])
+
+			err := conn.conn.SetWriteDeadline(time.Now().Add(conn.Opts.WriteTimeOut))
 			if err != nil {
 				return err
 			}
+			_, err = conn.conn.Write(p[:i+ts.datast+1])
+			if err != nil {
+				return err
+			}
+			//是否打印数据帧
+			if conn.Opts.IOLog {
+				log.Printf("write p %d Bytes:%b", i, p[:i+ts.datast+1])
+			}
+			//保证打印顺序
+			time.Sleep(time.Nanosecond)
+			fmt.Println("剩余数据大于缓冲 分片传输中，剩余大小:", ts.restDate, "Byte")
 		} else { //剩余数据小于缓冲 一次发完
 			// 1 0 0 0 0 0 0 2 表示无扩展协议 传输不分片 类型binary
 			// 1 0 0 0 0 0 0 1 表示无扩展协议 传输不分片 类型text
@@ -78,7 +89,6 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 			} else {
 				p[0] = 128
 			}
-
 			//服务器发给客户端不应该掩码
 			//处理Payload len
 			if ts.restDate < 125 {
@@ -90,11 +100,11 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 			} else {
 				p[1] = 126
 				ts.datast = 4
-				i := ts.restDate - ts.datast
+				i := ts.restDate - ts.datast - 1
 				p[3] = byte(i % 128)
-				p[2] = byte(i - (i % 128))
+				p[2] = byte((i - (i % 128)) >> 8)
 			}
-			i := 0
+			var i int64 = 0
 			for i = 0; i < conn.WriteBufferSize-ts.datast; i++ {
 				p[ts.datast+i] = msg[ts.idx+i]
 				ts.restDate--
@@ -104,17 +114,20 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 				}
 			}
 
-			log.Printf("write p :%b", p[:i])
+			//是否打印数据帧
+			if conn.Opts.IOLog {
+				log.Printf("write p %d Bytes:%b", i, p[:i+ts.datast+1])
+			}
 			err := conn.conn.SetWriteDeadline(time.Now().Add(conn.Opts.WriteTimeOut))
 			if err != nil {
 				return err
 			}
-			_, err = conn.conn.Write(p[:i])
+			_, err = conn.conn.Write(p[:i+ts.datast+1])
 			if err != nil {
 				return err
 			}
 			if opcode == 1 {
-				log.Println("send:", string(p[ts.datast:len(msg)+ts.datast]))
+				log.Println("send:", string(p[ts.datast:int64(len(msg))+ts.datast]))
 			} else {
 				log.Println("send file success")
 			}
@@ -140,11 +153,10 @@ func (conn *MyConn) WriteJSON(v interface{}, opts ...Option) error {
 		return err
 	}
 
-	return conn.Write(msg, 1)
+	return conn.wsWrite(msg, 1)
 }
 
 func (conn *MyConn) WriteString(s string, opts ...Option) error {
-	//可选参数 设置读写时间
 	op := ConnOptions{
 		WriteTimeOut: time.Second,
 	}
@@ -152,8 +164,9 @@ func (conn *MyConn) WriteString(s string, opts ...Option) error {
 		option(&op)
 	}
 	conn.Opts.WriteTimeOut = op.WriteTimeOut
+
 	msg := []byte(s)
-	return conn.Write(msg, 1)
+	return conn.wsWrite(msg, 1)
 }
 
 func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error {
@@ -184,5 +197,5 @@ func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error {
 	}
 	conn.Opts.WriteTimeOut = op.WriteTimeOut
 
-	return conn.Write(msg, 2)
+	return conn.wsWrite(msg, 2)
 }

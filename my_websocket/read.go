@@ -7,7 +7,6 @@ import (
 )
 
 func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
-
 	var opcode int
 	var data []byte
 
@@ -22,13 +21,15 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 		//缓冲
 		msbuff := make([]byte, DefaultWriteBuffer)
 		n, err := conn.conn.Read(msbuff)
-		log.Printf("read  p :%b", msbuff[:n])
+		if conn.Opts.IOLog {
+			log.Printf("read  p %d Bytes:%b", n, msbuff[:n])
+		}
 		if err != nil {
 			return -1, nil, errors.New("read data err:" + err.Error())
 		}
 		//如果消息大小大于ReadBufferSize 自动扩容
-		if n > conn.ReadBufferSize {
-			m := make([]byte, n-conn.ReadBufferSize)
+		if int64(n) > conn.ReadBufferSize {
+			m := make([]byte, int64(n)-conn.ReadBufferSize)
 			msg = append(msg, m...)
 		}
 		copy(msg, msbuff[:n])

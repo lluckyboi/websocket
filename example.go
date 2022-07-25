@@ -31,15 +31,13 @@ func main() {
 
 func ping(c *gin.Context) {
 	//升级get请求为webSocket协议
-	ws, err := up.Upgrade(c.Writer, c.Request)
+	ws, err := up.Upgrade(c.Writer, c.Request, my_websocket.WithIOLOG(true))
 	if err != nil {
 		log.Println("up" + err.Error())
 		return
 	}
 	defer ws.Close()
-	i := 0
 	for {
-		i++
 		//读取ws中的数据
 		_, ms, err := ws.ReadMsg()
 		if err != nil {
@@ -47,12 +45,18 @@ func ping(c *gin.Context) {
 			break
 		}
 		log.Println("received:", string(ms))
-
-		if i%2 == 0 {
-			err = ws.WriteImageJPG("./dataI.jpg")
-			if string(ms) == "close" {
-				break
-			}
+		if string(ms) == "close" {
+			break
 		}
+		err = ws.WriteImageJPG("./example.png")
+		if err != nil {
+			log.Println(err)
+			break
+		}
+		//err = ws.WriteString("hello my websocket")
+		//if err != nil {
+		//	log.Println(err)
+		//	break
+		//}
 	}
 }

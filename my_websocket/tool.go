@@ -47,10 +47,16 @@ func WithPongHandler(handler PongHandler) Option {
 	}
 }
 
-func (conn *MyConn) SetWriteBuffersize(size int) {
+func WithIOLOG(need bool) Option {
+	return func(options *ConnOptions) {
+		options.IOLog = need
+	}
+}
+
+func (conn *MyConn) SetWriteBuffersize(size int64) {
 	conn.WriteBufferSize = size
 }
 
-func (conn *MyConn) SetReadBuffersize(size int) {
+func (conn *MyConn) SetReadBuffersize(size int64) {
 	conn.ReadBufferSize = size
 }
