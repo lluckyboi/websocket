@@ -43,6 +43,7 @@ type Upgrader struct {
 	// 指定 http 的错误响应函数，如果没有设置 Error 则，会生成 http.Error 的错误响应。
 	Error func(w http.ResponseWriter, r *http.Request, status int, reason error)
 
+	//自定义检查源函数 默认返回true
 	CheckOrigin func(r *http.Request) bool
 }
 
