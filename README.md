@@ -1,6 +1,15 @@
 # 🎉MyWebsocket
 
-![pass](https://img.shields.io/badge/building-pass-green) ![pass](https://img.shields.io/badge/checks-pass-green)
+![pass](https://img.shields.io/badge/building-pass-green) ![pass](https://img.shields.io/badge/checks-pass-green) ![pass](https://img.shields.io/badge/tests-pass-green)
+## 🎁特性
+
+支持**自动分片传输，自动扩容**
+
+支持多种格式，**文件传输**(需客户端支持)，无需太过关心大小限制
+
+用户可自定义**读写缓冲与读写超时**
+
+**一键式**心跳管理，用户无需关心如何实现心跳
 
 ## 🎿快速开始
 ```go
@@ -25,15 +34,6 @@ func ping(c *gin.Context) {
 
 ```
 
-## 🎁特点
-
-支持**自动分片传输，自动扩容**
-
-支持多种格式，**文件传输**，无需太过关心大小限制
-
-用户可自定义**读写缓冲与读写超时**
-
-**一键式**心跳管理，用户无需关心如何实现心跳
 
 ## ✨**已经实现：**
 
@@ -55,7 +55,7 @@ func ping(c *gin.Context) {
  func (conn *MyConn)ReadMsg()(messagetype int, p []byte, err error)
   
  //可通过以下方法设置读取缓冲大小
- func (conn *MyConn)SetWriteBuffersize(size int
+ func (conn *MyConn)SetWriteBuffersize(size int64)
 ```
 
 - [x] 写入JSON、String
@@ -66,7 +66,7 @@ func ping(c *gin.Context) {
  func (conn *MyConn) WriteString(s string, opts ...Option) error
 
  //可通以下方法设置写入缓冲大小
- func (conn *MyConn)SetReadBuffersize(size int)
+ func (conn *MyConn)SetReadBuffersize(size int64)
 ```
 
 - [x] 关闭连接
@@ -86,9 +86,11 @@ func ping(c *gin.Context) {
 - [x] 文件传输(需要客户端设置自定义解析)
 
 ```go
- // 通过binary格式传输，目前只约定了jpg格式 
+ // 通过binary格式传输，可与客户端灵活自定义
  func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error
 ```
+  📃分片传输效果如下:
+![uTools_1658734731483](http://typora.fengxiangrui.top/1658734761.png)
   
     
 ## 🛠正在实现：
