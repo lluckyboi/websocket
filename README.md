@@ -33,7 +33,7 @@ func ping(c *gin.Context) {
 		//读取ws中的数据
 		_, ms, _ := ws.ReadMsg()
 		log.Println("received:", string(ms))
-		//写入string到ws连接****
+		//写入string到ws连接
 		err=ws.WriteString("hello my websocket")
 	}
 }
