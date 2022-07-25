@@ -19,6 +19,12 @@
 
 ## 🎿快速开始
 ```go
+var up = my_websocket.Upgrader{
+    HandshakeTimeout: time.Second * 5,
+    ReadBufferSize:   2048,
+    WriteBufferSize:  2048,
+}
+
 func main() {
 	r := gin.Default()
 	r.GET("/ws", ping)
