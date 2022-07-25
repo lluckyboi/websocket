@@ -53,6 +53,10 @@ func WithIOLOG(need bool) Option {
 	}
 }
 
+func (conn *MyConn) SetIOLog(need bool) {
+	conn.Opts.IOLog = need
+}
+
 func (conn *MyConn) SetWriteBuffersize(size int64) {
 	conn.WriteBufferSize = size
 }

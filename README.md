@@ -3,13 +3,19 @@
 ![pass](https://img.shields.io/badge/building-pass-green) ![pass](https://img.shields.io/badge/checks-pass-green) ![pass](https://img.shields.io/badge/tests-pass-green)
 ## 🎁特性
 
-支持**自动分片传输，自动扩容**
+- [x] 支持**自动分片传输，自动扩容**
 
-支持多种格式，**文件传输**(需客户端支持)，无需太过关心大小限制
 
-用户可自定义**读写缓冲与读写超时**
+- [x] 支持多种格式，**文件传输**(需客户端支持)，无需太过关心大小限制
 
-**一键式**心跳管理，用户无需关心如何实现心跳
+
+- [x] 用户可自定义**读写缓冲与读写超时**
+
+
+- [x] **一键式**心跳管理，用户无需关心如何实现心跳
+
+
+- [x] 支持读写数据帧**追踪** 轻松debug
 
 ## 🎿快速开始
 ```go
@@ -44,8 +50,9 @@ func ping(c *gin.Context) {
  func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request,opts ...Option) (conn *MyConn, err error)
 
  //其中opts支持以下方法
- func WithPingWait(timeout time.Duration) Option
- func WithPongHandler(handler PongHandler)Option
+ func WithPingWait(timeout time.Duration) Option    //心跳时间
+ func WithPongHandler(handler PongHandler)Option    //自定义pongHandler
+ func WithIOLOG(need bool) Option                   //读写数据帧追踪
 ```
 
 - [x] 读取消息
@@ -90,13 +97,19 @@ func ping(c *gin.Context) {
  func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error
 ```
   📃分片传输效果如下:
+
+
 ![uTools_1658734731483](http://typora.fengxiangrui.top/1658734761.png)
   
-    
+- [x] 读写数据帧追踪
+```go
+//除了在Upgrade时切换读写数据帧追踪，也可以调用以下方法随时切换
+func (conn *MyConn)SetIOLog(need bool)
+```
 ## 🛠正在实现：
+- [ ] 适配客户端DEMO
 
 - [ ] 分布式websocket
-
 ## 🧪实现原理
 
 根据websocket协议，读取数据帧并通过http/TCP进行通信
