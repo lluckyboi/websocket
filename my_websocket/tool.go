@@ -41,6 +41,16 @@ func WithPingWait(timeout time.Duration) Option {
 	}
 }
 
-func (conn *MyConn) WithPongHandler(handler PongHandler) {
-	conn.Opts.PongHandler = handler
+func WithPongHandler(handler PongHandler) Option {
+	return func(options *ConnOptions) {
+		options.PongHandler = handler
+	}
+}
+
+func (conn *MyConn) SetWriteBuffersize(size int) {
+	conn.WriteBufferSize = size
+}
+
+func (conn *MyConn) SetReadBuffersize(size int) {
+	conn.ReadBufferSize = size
 }

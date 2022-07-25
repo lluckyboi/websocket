@@ -15,7 +15,9 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, opts ...Optio
 	if conn.Opts.PingWait == time.Duration(0) {
 		conn.Opts.PingWait = DefaultPingWait
 	}
-	conn.PingTimeOut = time.Now().Add(conn.Opts.PingWait)
+	conn.PingTimeOut = func() time.Time {
+		return time.Now().Add(conn.Opts.PingWait)
+	}
 
 	//设置默认值
 	if u.ReadBufferSize == 0 {

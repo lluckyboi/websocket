@@ -4,13 +4,16 @@ import "log"
 
 func (conn *MyConn) pingHandler() {
 	//刷新心跳
-	conn.PingTimeOut.Add(conn.Opts.PingWait)
+	err := conn.conn.SetDeadline(conn.PingTimeOut())
+	if err != nil {
+		log.Println("refresh ping err:", err)
+	}
 	//发送pong
 	p := make([]byte, 2)
 	p[0] = 1<<7 + 10
-	_, err := conn.conn.Write(p)
+	_, err = conn.conn.Write(p)
 	if err != nil {
-		log.Println(err)
+		log.Println("send pong:", err)
 	}
 }
 

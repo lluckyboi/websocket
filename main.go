@@ -37,8 +37,9 @@ func ping(c *gin.Context) {
 		return
 	}
 	defer ws.Close()
-
+	i := 0
 	for {
+		i++
 		//读取ws中的数据
 		_, ms, err := ws.ReadMsg()
 		if err != nil {
@@ -46,13 +47,12 @@ func ping(c *gin.Context) {
 			break
 		}
 		log.Println("received:", string(ms))
-		err = ws.WriteString("hello my websocket")
-		if err != nil {
-			log.Println(err)
-			break
-		}
-		if string(ms) == "close" {
-			break
+
+		if i%2 == 0 {
+			err = ws.WriteImageJPG("./dataI.jpg")
+			if string(ms) == "close" {
+				break
+			}
 		}
 	}
 }

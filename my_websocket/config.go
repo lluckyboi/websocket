@@ -16,8 +16,8 @@ const (
 	WSVersion          = "13"
 	MagicString        = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 	DefaultTimeOut     = time.Second * 180
-	DefaultReadBuffer  = 65535 + 125
-	DefaultWriteBuffer = 65535 + 125
+	DefaultReadBuffer  = 65535 + 125 + 1
+	DefaultWriteBuffer = 65535 + 125 + 1
 	DefaultPingWait    = 30 * time.Second
 )
 
@@ -29,7 +29,7 @@ type Msg struct {
 type MyConn struct {
 	conn                            net.Conn
 	ReadBufferSize, WriteBufferSize int
-	PingTimeOut                     time.Time
+	PingTimeOut                     func() time.Time
 	Opts                            ConnOptions
 }
 
