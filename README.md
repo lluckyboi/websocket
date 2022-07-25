@@ -2,50 +2,72 @@
 
 ![pass](https://img.shields.io/badge/building-pass-green) ![pass](https://img.shields.io/badge/checks-pass-green)
 
+## 🎁特点
+
+支持**自动分片传输，自动扩容**
+
+支持多种格式，文件传输，无需太过关心大小限制
+
+用户可自定义**读写缓冲与读写超时**
+
+**一键式**心跳管理，用户无需关心如何实现心跳
+
 ## ✨**已经实现：**
 
 - [x] 升级协议
 
 ```go
+ //通过填写upgrader 升级HTTP连接为websocket
  func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request,opts ...Option) (conn *MyConn, err error)
-//通过填写upgrader 升级HTTP连接为websocket
+
+ //其中opts支持以下方法
+ func WithPingWait(timeout time.Duration) Option
+ func WithPongHandler(handler PongHandler)Option
 ```
 
 - [x] 读取消息
 
 ```go
-  func (conn *MyConn)ReadMsg()(messagetype int, p []byte, err error)
-//从连接中读取消息 返回数据类型、大小和错误
+ //从连接中读取消息 返回数据类型、大小和错误
+ func (conn *MyConn)ReadMsg()(messagetype int, p []byte, err error)
+  
+ //可通过以下方法设置读取缓冲大小
+ func (conn *MyConn)SetWriteBuffersize(size int
 ```
 
-- [x] 写入JSON、String、Binary
+- [x] 写入JSON、String
 
 ```go
-  func (conn *MyConn) WriteJSON(v interface{}, opts ...Option) error
-func (conn *MyConn) WriteString(s string, opts ...Option) error
-func (conn *MyConn) WriteBinary(msg []byte, opts ...Option)error
-//将数据写入连接
+ //将数据写入连接
+ func (conn *MyConn) WriteJSON(v interface{}, opts ...Option) error
+ func (conn *MyConn) WriteString(s string, opts ...Option) error
+
+ //可通以下方法设置写入缓冲大小
+ func (conn *MyConn)SetReadBuffersize(size int)
 ```
 
 - [x] 关闭连接
 
 ```go
-  func (conn *MyConn) Close()
-//关闭连接
+ //关闭连接
+ func (conn *MyConn) Close()
 ```
 
 - [x] 心跳
 
-Upgrade方法通过**可选参数**自定义心跳超时时间 (默认30秒)
 
-用户还可用通过WithPongHandler方法自定义服务端PongHandler
+    Upgrade方法通过**可选参数**自定义心跳超时时间 (默认30秒)
 
-- [ ] 文件传输(半成品)
+    用户还可用通过WithPongHandler方法自定义服务端PongHandler
 
-由于使用了自定义非控制帧，传输时会被浏览器立即关闭连接 
+- [x] 文件传输(需要客户端设置自定义解析)
 
-想要使用可以自定义应用层协议来实现
-
+```go
+ // 通过binary格式传输，目前只约定了jpg格式 
+ func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error
+```
+  
+    
 ## 🛠正在实现：
 
 - [ ] 分布式websocket
@@ -76,15 +98,7 @@ Upgrade方法通过**可选参数**自定义心跳超时时间 (默认30秒)
 
 通过操作net包的```SetDeadline```
 
-## 🎁特点
 
-支持**自动分片传输，自动扩容**
-
-支持多种格式写入，无需太过关心大小限制
-
-用户可自定义**读写缓冲与读写超时**
-
-**一键式**心跳管理，用户无需关心如何实现心跳
 
 ### 📑Reference
 
