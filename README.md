@@ -2,11 +2,34 @@
 
 ![pass](https://img.shields.io/badge/building-pass-green) ![pass](https://img.shields.io/badge/checks-pass-green)
 
+## 🎿快速开始
+```go
+func main() {
+	r := gin.Default()
+	r.GET("/ws", ping)
+	r.Run(":9924")
+}
+
+func ping(c *gin.Context) {
+	//升级get请求为webSocket协议
+	ws, _ := up.Upgrade(c.Writer, c.Request)
+	defer ws.Close()
+	for {
+		//读取ws中的数据
+		_, ms, _ := ws.ReadMsg()
+		log.Println("received:", string(ms))
+		//写入string到ws连接****
+		err=ws.WriteString("hello my websocket")
+	}
+}
+
+```
+
 ## 🎁特点
 
 支持**自动分片传输，自动扩容**
 
-支持多种格式，文件传输，无需太过关心大小限制
+支持多种格式，**文件传输**，无需太过关心大小限制
 
 用户可自定义**读写缓冲与读写超时**
 
