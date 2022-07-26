@@ -1,4 +1,4 @@
-package mywebsocket
+package MyWebsocket
 
 import (
 	"fmt"

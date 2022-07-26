@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
-	"mywebsocket/my_websocket"
+	"websocket/MyWebsocket"
 )
 
 func main() {
-	conn, err := my_websocket.Dail("127.0.0.1", "9924", "http://127.0.0.1:9924/ws")
+	conn, err := MyWebsocket.Dail("127.0.0.1", "9924", "http://127.0.0.1:9924/ws")
 	if err != nil {
 		log.Println(err)
 	}

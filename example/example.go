@@ -3,11 +3,11 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"mywebsocket/my_websocket"
 	"time"
+	"websocket/MyWebsocket"
 )
 
-var up = my_websocket.Upgrader{
+var up = MyWebsocket.Upgrader{
 	HandshakeTimeout: time.Second * 5,
 	ReadBufferSize:   2048,
 	WriteBufferSize:  2048,
@@ -31,7 +31,7 @@ func main() {
 
 func ping(c *gin.Context) {
 	//升级get请求为webSocket协议
-	ws, err := up.Upgrade(c.Writer, c.Request, my_websocket.WithIOLOG(true))
+	ws, err := up.Upgrade(c.Writer, c.Request, MyWebsocket.WithIOLOG(true))
 	if err != nil {
 		log.Println("up" + err.Error())
 		return
@@ -61,10 +61,10 @@ func ping(c *gin.Context) {
 			break
 		}
 		//多次上传文件可能会被客户端强制关闭连接
-		err = ws.WriteFile("./example/", "example.png")
-		if err != nil {
-			log.Println(err)
-			break
-		}
+		//err = ws.WriteFile("./example/", "example.png")
+		//if err != nil {
+		//	log.Println(err)
+		//	break
+		//}
 	}
 }
