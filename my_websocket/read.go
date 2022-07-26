@@ -12,7 +12,7 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 
 	for {
 		//刷新心跳
-		err = conn.conn.SetDeadline(conn.PingTimeOut())
+		err = conn.Conn.SetDeadline(conn.PingTimeOut())
 		if err != nil {
 			return 0, nil, err
 		}
@@ -20,7 +20,7 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 		msg := make([]byte, conn.ReadBufferSize)
 		//缓冲
 		msbuff := make([]byte, DefaultWriteBuffer)
-		n, err := conn.conn.Read(msbuff)
+		n, err := conn.Conn.Read(msbuff)
 		if conn.Opts.IOLog {
 			log.Printf("read  p %d Bytes:%b", n, msbuff[:n])
 		}

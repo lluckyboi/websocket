@@ -27,7 +27,7 @@ type Msg struct {
 }
 
 type MyConn struct {
-	conn                            net.Conn
+	Conn                            net.Conn
 	ReadBufferSize, WriteBufferSize uint64
 	PingTimeOut                     func() time.Time
 	Opts                            ConnOptions

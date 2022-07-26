@@ -69,9 +69,9 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, opts ...Optio
 	hijcakcer, ok := w.(http.Hijacker)
 	if !ok {
 		http.Error(w, http.StatusText(500), 500)
-		return &MyConn{}, errors.New("upgrade conn err:get conn")
+		return &MyConn{}, errors.New("upgrade Conn err:get Conn")
 	}
-	conn.conn, _, err = hijcakcer.Hijack()
+	conn.Conn, _, err = hijcakcer.Hijack()
 
 	//拿到浏览器生成的密钥 并与Websocket的Magic String拼接
 	wskey := append([]byte(r.Header.Get("Sec-Websocket-Key")), []byte(MagicString)...)
@@ -79,11 +79,11 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, opts ...Optio
 
 	//回复报文 超时返回
 	resp := []byte("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: " + respAccept + "\r\n\r\n")
-	err = conn.conn.SetWriteDeadline(time.Now().Add(u.HandshakeTimeout))
+	err = conn.Conn.SetWriteDeadline(time.Now().Add(u.HandshakeTimeout))
 	if err != nil {
 		return nil, err
 	}
-	_, err = conn.conn.Write(resp)
+	_, err = conn.Conn.Write(resp)
 	if err != nil {
 		return nil, err
 	}

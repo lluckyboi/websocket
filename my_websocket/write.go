@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
+func (conn *MyConn) Write(msg []byte, opcode int) error {
 	//初始化
 	ts := &Writer{
 		idx:      0,
@@ -61,11 +61,11 @@ func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
 			//写入
 			ts.ismain = false
 
-			err := conn.conn.SetWriteDeadline(time.Now().Add(conn.Opts.WriteTimeOut))
+			err := conn.Conn.SetWriteDeadline(time.Now().Add(conn.Opts.WriteTimeOut))
 			if err != nil {
 				return err
 			}
-			_, err = conn.conn.Write(p[:i+ts.datast+1])
+			_, err = conn.Conn.Write(p[:i+ts.datast+1])
 			if err != nil {
 				return err
 			}
@@ -113,11 +113,11 @@ func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
 			if conn.Opts.IOLog {
 				log.Printf("write p %d Bytes:%b", i, p[:i+ts.datast+1])
 			}
-			err := conn.conn.SetWriteDeadline(time.Now().Add(conn.Opts.WriteTimeOut))
+			err := conn.Conn.SetWriteDeadline(time.Now().Add(conn.Opts.WriteTimeOut))
 			if err != nil {
 				return err
 			}
-			_, err = conn.conn.Write(p[:i+ts.datast+1])
+			_, err = conn.Conn.Write(p[:i+ts.datast+1])
 			if err != nil {
 				return err
 			}
@@ -148,7 +148,7 @@ func (conn *MyConn) WriteJSON(v interface{}, opts ...Option) error {
 		return err
 	}
 
-	return conn.wsWrite(msg, 1)
+	return conn.Write(msg, 1)
 }
 
 func (conn *MyConn) WriteString(s string, opts ...Option) error {
@@ -161,7 +161,7 @@ func (conn *MyConn) WriteString(s string, opts ...Option) error {
 	conn.Opts.WriteTimeOut = op.WriteTimeOut
 
 	msg := []byte(s)
-	return conn.wsWrite(msg, 1)
+	return conn.Write(msg, 1)
 }
 
 func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error {
@@ -192,5 +192,5 @@ func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error {
 	}
 	conn.Opts.WriteTimeOut = op.WriteTimeOut
 
-	return conn.wsWrite(msg, 2)
+	return conn.Write(msg, 2)
 }

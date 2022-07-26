@@ -3,7 +3,7 @@ package my_websocket
 import "log"
 
 func (conn *MyConn) Close() {
-	err := conn.conn.Close()
+	err := conn.Conn.Close()
 	if err != nil {
 		log.Println(err)
 	}
