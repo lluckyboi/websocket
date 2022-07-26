@@ -1,12 +1,13 @@
 # 🎉MyWebsocket
 
 ![pass](https://img.shields.io/badge/building-pass-green) ![pass](https://img.shields.io/badge/checks-pass-green) ![pass](https://img.shields.io/badge/tests-pass-green)
+
 ## 🎁特性
 
 - [x] 支持**自动分片传输，自动扩容**
 
 
-- [x]  **强大而灵活**，用户可自定义每个分片负载数据的大小
+- [x] **强大而灵活**，用户可自定义每个分片负载数据的大小
 
 
 - [x] 支持多种格式，**文件传输**，无需太过关心大小限制
@@ -22,30 +23,31 @@
 
 
 ## 🎿快速开始
+
 ```go
 var up = my_websocket.Upgrader{
-    HandshakeTimeout: time.Second * 5,
-    ReadBufferSize:   2048,
-    WriteBufferSize:  2048,
+HandshakeTimeout: time.Second * 5,
+ReadBufferSize:   2048,
+WriteBufferSize:  2048,
 }
 
 func main() {
-	r := gin.Default()
-	r.GET("/ws", ping)
-	r.Run(":9924")
+r := gin.Default()
+r.GET("/ws", ping)
+r.Run(":9924")
 }
 
 func ping(c *gin.Context) {
-	//升级get请求为webSocket协议
-	ws, _ := up.Upgrade(c.Writer, c.Request)
-	defer ws.Close()
-	for {
-		//读取ws中的数据
-		_, ms, _ := ws.ReadMsg()
-		log.Println("received:", string(ms))
-		//写入string到ws连接
-		err=ws.WriteString("hello my websocket")
-	}
+//升级get请求为webSocket协议
+ws, _ := up.Upgrade(c.Writer, c.Request)
+defer ws.Close()
+for {
+//读取ws中的数据
+_, ms, _ := ws.ReadMsg()
+log.Println("received:", string(ms))
+//写入string到ws连接
+err=ws.WriteString("hello my websocket")
+}
 }
 
 ```
@@ -96,9 +98,9 @@ func ping(c *gin.Context) {
 - [x] 心跳
 
 
-    Upgrade方法通过**可选参数**自定义心跳超时时间 (默认30秒)
+​    Upgrade方法通过**可选参数**自定义心跳超时时间 (默认30秒)
 
-    用户还可用通过WithPongHandler方法自定义服务端PongHandler
+​    用户还可用通过WithPongHandler方法自定义服务端PongHandler
 
 - [x] 文件传输(需要客户端设置自定义解析)
 
@@ -113,20 +115,24 @@ func ping(c *gin.Context) {
 
 
 ![uTools_1658734731483](http://typora.fengxiangrui.top/1658734761.png)
-  
+
 
 
 - [x] 读写数据帧追踪
+
 ```go
 //除了在Upgrade时切换读写数据帧追踪，也可以调用以下方法随时切换
 func (conn *MyConn)SetIOLog(need bool)
 ```
+
 ![uTools_1658807634153](http://typora.fengxiangrui.top/1658807652.png)
 
 ## 🛠正在实现：
+
 - [ ] 客户端封装
 
 - [ ] 分布式websocket
+
 ## 🧪实现原理
 
 根据websocket协议，读取数据帧并通过http/TCP进行通信
@@ -153,7 +159,17 @@ func (conn *MyConn)SetIOLog(need bool)
 
 通过操作net包的```SetDeadline```
 
+#### 文件传输
 
+有两种实现方法
+
+**第一种**是使用多个websocket协议的非控制帧，与客户端约定文件类型与opcde的映射关系
+
+**第二种**是使用一个非控制帧，第一个字节前四位设置为 `0 0 0 0 ` 	后四位为`m` (m可为0x3-7)
+
+表示本次传输无扩展协议，使用分片传输
+
+类型是文件信息（文件类型、大小等等），然后后续附加数据帧传输文件，传输完成后由客户端根据第一帧的文件信息拼接、解析文件
 
 ## 📑Reference
 
