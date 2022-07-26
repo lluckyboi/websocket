@@ -1,4 +1,4 @@
-package my_websocket
+package websocket
 
 import (
 	"bytes"
