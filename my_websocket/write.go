@@ -164,7 +164,7 @@ func (conn *MyConn) WriteString(s string, opts ...Option) error {
 	return conn.Write(msg, 1)
 }
 
-func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error {
+func (conn *MyConn) WriteImage(filePath string, opts ...Option) error {
 	buff := new(bytes.Buffer)
 	file, err := os.Open(filePath)
 	if err != nil {
