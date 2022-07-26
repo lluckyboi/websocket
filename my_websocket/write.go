@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (conn *MyConn) Write(msg []byte, opcode int) error {
+func (conn *MyConn) Write(msg []byte, opcode int, filename ...string) error {
 	//初始化
 	ts := &Writer{
 		idx:      0,
@@ -20,6 +20,11 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 		ismain:   true,
 	}
 	p := make([]byte, conn.WriteBufferSize)
+
+	//如果传输文件 加上文件名
+	if opcode == 2 {
+		ts.restDate += 20
+	}
 
 	//剩余数据大于缓冲 扩容 协议头最多四个字节(不会扩容八个字节)
 	if ts.restDate > conn.WriteBufferSize-4 {
@@ -43,6 +48,15 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 			//长度扩展2个字节
 			p[1] = 126
 			ts.datast = 4
+
+			//如果要传输文件类型且是第一帧 加上文件名
+			if opcode == 2 && ts.ismain {
+				for i := 0; i < len(filename[0]); i++ {
+					p[ts.datast+uint64(i)] = []byte(filename[0])[i]
+				}
+				ts.datast += 20
+				ts.restDate -= 20
+			}
 
 			var i uint64 = 0
 			for ; i < conn.WriteBufferSize; i++ {
@@ -78,7 +92,7 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 			// 1 0 0 0 0 0 0 2 表示无扩展协议 传输不分片 类型binary
 			// 1 0 0 0 0 0 0 1 表示无扩展协议 传输不分片 类型text
 			// 1 0 0 0 0 0 0 0 表示当前为最后一片 类型扩展数据
-			//是否主片
+			// 是否主片
 			if ts.ismain {
 				p[0] = 128 + byte(opcode)
 			} else {
@@ -96,8 +110,17 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 				p[3] = byte(i % 128)
 				p[2] = byte((i - (i % 128)) >> 8)
 			}
+
+			//如果是文件 加上文件名
+			if opcode == 2 {
+				for i := 0; i < len(filename[0]); i++ {
+					p[ts.datast+uint64(i)] = []byte(filename[0])[i]
+				}
+				ts.datast += 20
+				ts.restDate -= 20
+			}
 			var i uint64 = 0
-			for i = 0; i < conn.WriteBufferSize-ts.datast; i++ {
+			for ; ; i++ {
 				p[ts.datast+i] = msg[ts.idx+i]
 				ts.restDate--
 				//如果写完 退出循环
@@ -161,9 +184,9 @@ func (conn *MyConn) WriteString(s string, opts ...Option) error {
 	return conn.Write(msg, 1)
 }
 
-func (conn *MyConn) WriteImage(filePath string, opts ...Option) error {
+func (conn *MyConn) WriteFile(filePath string, fileName string, opts ...Option) error {
 	buff := new(bytes.Buffer)
-	file, err := os.Open(filePath)
+	file, err := os.Open(filePath + fileName)
 	if err != nil {
 		fmt.Println("open file err=", err)
 	}
@@ -189,5 +212,5 @@ func (conn *MyConn) WriteImage(filePath string, opts ...Option) error {
 	}
 	conn.Opts.WriteTimeOut = op.WriteTimeOut
 
-	return conn.Write(msg, 2)
+	return conn.Write(msg, 2, fileName)
 }
