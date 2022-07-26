@@ -60,7 +60,7 @@ func ping(c *gin.Context) {
 			log.Println(err)
 			break
 		}
-		//多次上传图片可能会因为客户端无法正常解析而关闭连接
+		//多次上传图片可能会被客户端强制关闭连接
 		//err = ws.WriteImage("./example/example.png")
 		//if err != nil {
 		//	log.Println(err)
