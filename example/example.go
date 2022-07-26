@@ -14,13 +14,13 @@ var up = my_websocket.Upgrader{
 }
 
 type Monster struct {
-	//Name string `json:"monster_name"`
-	//Age  string `json:"monster_age"`
-	Nm string `json:"nm"`
+	Name string `json:"monster_name"`
+	Age  string `json:"monster_age"`
 }
 
 var monster = Monster{
-	Nm: "sl",
+	Name: "web",
+	Age:  "socket",
 }
 
 func main() {
