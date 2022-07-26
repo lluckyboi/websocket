@@ -88,9 +88,6 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 			//处理Payload len
 			if ts.restDate < 125 {
 				p[1] = byte(ts.restDate)
-				if p[1]%2 == 1 {
-					p[1]++
-				}
 				ts.datast = 2
 			} else {
 				p[1] = 126
@@ -111,7 +108,7 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 
 			//是否打印数据帧
 			if conn.Opts.IOLog {
-				log.Printf("write %d Bytes:%b", i, p[:i+ts.datast+1])
+				log.Printf("write %d Bytes:%b", i+1, p[:i+ts.datast+1])
 			}
 			err := conn.Conn.SetWriteDeadline(time.Now().Add(conn.Opts.WriteTimeOut))
 			if err != nil {

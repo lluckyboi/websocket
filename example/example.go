@@ -45,9 +45,11 @@ func ping(c *gin.Context) {
 			break
 		}
 		log.Println("received:", string(ms))
+
 		if string(ms) == "close" {
 			break
 		}
+
 		err = ws.WriteJSON(monster)
 		if err != nil {
 			log.Println(err)
@@ -59,7 +61,7 @@ func ping(c *gin.Context) {
 			break
 		}
 		//多次上传图片可能会因为客户端无法正常解析而关闭连接
-		//err = ws.WriteImage("./example.png")
+		//err = ws.WriteImage("./example/example.png")
 		//if err != nil {
 		//	log.Println(err)
 		//	break
