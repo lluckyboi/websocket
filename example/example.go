@@ -48,16 +48,21 @@ func ping(c *gin.Context) {
 		if string(ms) == "close" {
 			break
 		}
+		err = ws.WriteJSON(monster)
+		if err != nil {
+			log.Println(err)
+			break
+		}
+		err = ws.WriteString("hello my websocket")
+		if err != nil {
+			log.Println(err)
+			break
+		}
 		//多次上传图片可能会因为客户端无法正常解析而关闭连接
 		//err = ws.WriteImage("./example.png")
 		//if err != nil {
 		//	log.Println(err)
 		//	break
 		//}
-		err = ws.WriteString("hello my websocket")
-		if err != nil {
-			log.Println(err)
-			break
-		}
 	}
 }
