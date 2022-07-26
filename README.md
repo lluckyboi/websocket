@@ -121,7 +121,7 @@ func ping(c *gin.Context) {
 //除了在Upgrade时切换读写数据帧追踪，也可以调用以下方法随时切换
 func (conn *MyConn)SetIOLog(need bool)
 ```
-![image-20220726094842998](http://typora.fengxiangrui.top/1658800121.png)
+![uTools_1658807634153](http://typora.fengxiangrui.top/1658807652.png)
 
 ## 🛠正在实现：
 - [ ] 客户端封装
