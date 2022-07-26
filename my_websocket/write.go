@@ -111,7 +111,7 @@ func (conn *MyConn) Write(msg []byte, opcode int) error {
 
 			//是否打印数据帧
 			if conn.Opts.IOLog {
-				log.Printf("write p %d Bytes:%b", i, p[:i+ts.datast+1])
+				log.Printf("write %d Bytes:%b", i, p[:i+ts.datast+1])
 			}
 			err := conn.Conn.SetWriteDeadline(time.Now().Add(conn.Opts.WriteTimeOut))
 			if err != nil {

@@ -22,7 +22,7 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 		msbuff := make([]byte, DefaultWriteBuffer)
 		n, err := conn.Conn.Read(msbuff)
 		if conn.Opts.IOLog {
-			log.Printf("read  p %d Bytes:%b", n, msbuff[:n])
+			log.Printf("read  %d Bytes:%b", n, msbuff[:n])
 		}
 		if err != nil {
 			return -1, nil, errors.New("read data err:" + err.Error())
