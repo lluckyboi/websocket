@@ -102,16 +102,23 @@ func ping(c *gin.Context) {
  // 暂时通过binary格式传输，其余格式可与客户端约定
  func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error
 ```
-  📃分片传输效果如下:
+
+![uTools_1658799974993](http://typora.fengxiangrui.top/1658799978.png)
+
+- [x] 分片传输
 
 
 ![uTools_1658734731483](http://typora.fengxiangrui.top/1658734761.png)
   
+
+
 - [x] 读写数据帧追踪
 ```go
 //除了在Upgrade时切换读写数据帧追踪，也可以调用以下方法随时切换
 func (conn *MyConn)SetIOLog(need bool)
 ```
+![image-20220726094842998](http://typora.fengxiangrui.top/1658800121.png)
+
 ## 🛠正在实现：
 - [ ] 客户端封装
 

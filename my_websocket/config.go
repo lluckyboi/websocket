@@ -28,7 +28,7 @@ type Msg struct {
 
 type MyConn struct {
 	conn                            net.Conn
-	ReadBufferSize, WriteBufferSize int64
+	ReadBufferSize, WriteBufferSize uint64
 	PingTimeOut                     func() time.Time
 	Opts                            ConnOptions
 }
@@ -38,7 +38,7 @@ type Upgrader struct {
 	HandshakeTimeout time.Duration
 
 	// 指定 io 操作的缓存大小
-	ReadBufferSize, WriteBufferSize int64
+	ReadBufferSize, WriteBufferSize uint64
 
 	// 指定 http 的错误响应函数，如果没有设置 Error 则，会生成 http.Error 的错误响应。
 	Error func(w http.ResponseWriter, r *http.Request, status int, reason error)
@@ -48,11 +48,11 @@ type Upgrader struct {
 }
 
 type Writer struct {
-	idx      int64  //记录当前传输位置
-	datast   int64  //数据开始的下标
-	maskst   int64  //maskKey开始的下标
+	idx      uint64 //记录当前传输位置
+	datast   uint64 //数据开始的下标
+	maskst   uint64 //maskKey开始的下标
 	maskKey  []byte //maskKey
-	restDate int64  //剩余数据大小
+	restDate uint64 //剩余数据大小
 	ismain   bool   //是否主片
 }
 

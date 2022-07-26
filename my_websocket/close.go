@@ -7,5 +7,5 @@ func (conn *MyConn) Close() {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("websocket connection closed")
+	log.Println("websocket connection closed successfully")
 }

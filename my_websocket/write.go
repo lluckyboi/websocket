@@ -16,34 +16,39 @@ func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
 		idx:      0,
 		datast:   0,
 		maskKey:  make([]byte, 4),
-		restDate: int64(len(msg)),
+		restDate: uint64(len(msg)),
 		ismain:   true,
 	}
 	p := make([]byte, conn.WriteBufferSize)
-	//剩余数据大于缓冲 扩容 协议头最多占用14字节
-	if ts.restDate >= conn.WriteBufferSize-14 {
+
+	//剩余数据大于缓冲 扩容 协议头最多四个字节(不会扩容八个字节)
+	if ts.restDate > conn.WriteBufferSize-4 {
 		m := make([]byte, DefaultWriteBuffer)
 		p = append(p, m...)
 	}
+
 	for {
-		//如果还是不够 分片传输
-		if ts.restDate >= conn.WriteBufferSize+DefaultWriteBuffer-14 {
+		//如果大于DefaultWriteBuffer 即扩容两个字节也不够 分片传输
+		if ts.restDate >= DefaultWriteBuffer {
 			//  0 0 0 0 0 0 0 1 表示无扩展协议 传输分片 类型text 如果末尾0表示当前为分片
 			//  0 0 0 0 0 0 0 2 表示无扩展协议 传输分片 类型binary 如果末尾0表示当前为分片
+
+			//是否主片
 			if ts.ismain {
 				p[0] = byte(opcode)
 			} else {
 				p[0] = 0
 			}
 
-			//长度扩展8个字节
-			p[1] = 127
+			//长度扩展2个字节
+			p[1] = 126
 			ts.datast = 4
 
-			var i int64 = 0
-			for ; i < conn.WriteBufferSize-ts.datast; i++ {
+			var i uint64 = 0
+			for ; i < conn.WriteBufferSize; i++ {
 				p[ts.datast+i] = msg[ts.idx+i]
 			}
+
 			//设置长度
 			p[3] = byte(i % 128)
 			p[2] = byte((i - (i % 128)) >> 8)
@@ -52,15 +57,7 @@ func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
 			ts.idx += i
 			//更新剩余数据大小
 			ts.restDate -= i
-			//再次判断 以防边界条件 能一次传完 不分片
-			if ts.restDate <= 0 {
-				p[0] = 1<<7 + byte(opcode)
-				_, err := conn.conn.Write(p)
-				if err != nil {
-					return err
-				}
-				break
-			}
+
 			//写入
 			ts.ismain = false
 
@@ -76,8 +73,6 @@ func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
 			if conn.Opts.IOLog {
 				log.Printf("write p %d Bytes:%b", i, p[:i+ts.datast+1])
 			}
-			//保证打印顺序
-			time.Sleep(time.Nanosecond)
 			fmt.Println("剩余数据大于缓冲 分片传输中，剩余大小:", ts.restDate, "Byte")
 		} else { //剩余数据小于缓冲 一次发完
 			// 1 0 0 0 0 0 0 2 表示无扩展协议 传输不分片 类型binary
@@ -104,7 +99,7 @@ func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
 				p[3] = byte(i % 128)
 				p[2] = byte((i - (i % 128)) >> 8)
 			}
-			var i int64 = 0
+			var i uint64 = 0
 			for i = 0; i < conn.WriteBufferSize-ts.datast; i++ {
 				p[ts.datast+i] = msg[ts.idx+i]
 				ts.restDate--
@@ -127,7 +122,7 @@ func (conn *MyConn) wsWrite(msg []byte, opcode int) error {
 				return err
 			}
 			if opcode == 1 {
-				log.Println("send:", string(p[ts.datast:int64(len(msg))+ts.datast]))
+				log.Println("send:", string(p[ts.datast:uint64(len(msg))+ts.datast]))
 			} else {
 				log.Println("send file success")
 			}

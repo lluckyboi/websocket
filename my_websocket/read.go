@@ -28,8 +28,8 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 			return -1, nil, errors.New("read data err:" + err.Error())
 		}
 		//如果消息大小大于ReadBufferSize 自动扩容
-		if int64(n) > conn.ReadBufferSize {
-			m := make([]byte, int64(n)-conn.ReadBufferSize)
+		if uint64(n) > conn.ReadBufferSize {
+			m := make([]byte, uint64(n)-conn.ReadBufferSize)
 			msg = append(msg, m...)
 		}
 		copy(msg, msbuff[:n])
@@ -51,7 +51,7 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 		}
 		//数据长度
 		playloadLength := msg[1] - 128
-		var thislength int64
+		var thislength uint64
 
 		//找出masking-key起始字节索引
 		maskst := 0
@@ -62,17 +62,17 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 		//127后面八个字节补充长度
 		if playloadLength <= 125 {
 			maskst = 2
-			thislength = int64(playloadLength)
+			thislength = uint64(playloadLength)
 		} else if playloadLength == 126 {
 			maskst = 4
 			//后面补充16位
-			thislength = int64(playloadLength) + int64(msg[2])<<8 + int64(msg[3])
+			thislength = uint64(playloadLength) + uint64(msg[2])<<8 + uint64(msg[3])
 		} else if playloadLength == 127 {
 			maskst = 10
 			//后面补充64位
-			thislength = int64(playloadLength) + int64(msg[2])<<56 + int64(msg[3])<<48
-			thislength += int64(msg[4])<<40 + int64(msg[5])<<32 + int64(msg[6])<<24<<int64(msg[7])<<16
-			thislength += int64(msg[8])<<8 + int64(msg[9])
+			thislength = uint64(playloadLength) + uint64(msg[2])<<56 + uint64(msg[3])<<48
+			thislength += uint64(msg[4])<<40 + uint64(msg[5])<<32 + uint64(msg[6])<<24<<uint64(msg[7])<<16
+			thislength += uint64(msg[8])<<8 + uint64(msg[9])
 		}
 
 		//获取掩码key
@@ -82,13 +82,13 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 		}
 
 		//数据开始位置
-		datast := int64(maskst) + 4
+		datast := uint64(maskst) + 4
 
 		//数据
 		datas := make([]byte, thislength)
 
 		//掩码处理 从掩码后数据第一字节开始
-		for i := int64(0); i < thislength; i++ {
+		for i := uint64(0); i < thislength; i++ {
 			j := i % 4
 			datas[i] = msg[datast+i] ^ maskKey[j]
 		}

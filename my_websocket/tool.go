@@ -57,10 +57,10 @@ func (conn *MyConn) SetIOLog(need bool) {
 	conn.Opts.IOLog = need
 }
 
-func (conn *MyConn) SetWriteBuffersize(size int64) {
+func (conn *MyConn) SetWriteBuffersize(size uint64) {
 	conn.WriteBufferSize = size
 }
 
-func (conn *MyConn) SetReadBuffersize(size int64) {
+func (conn *MyConn) SetReadBuffersize(size uint64) {
 	conn.ReadBufferSize = size
 }
