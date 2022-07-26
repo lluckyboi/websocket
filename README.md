@@ -102,11 +102,11 @@ err=ws.WriteString("hello my websocket")
 
 ​    用户还可用通过WithPongHandler方法自定义服务端PongHandler
 
-- [x] 文件传输(需要客户端设置自定义解析)
+- [x] 文件传输(需要客户端解析)
 
 ```go
- // 暂时通过binary格式传输，其余格式可与客户端约定
- func (conn *MyConn) WriteImageJPG(filePath string, opts ...Option) error
+ //占用binary位
+func (conn *MyConn) WriteFile(filePath string, fileName string, opts ...Option) error
 ```
 
 ![uTools_1658799974993](http://typora.fengxiangrui.top/1658799978.png)
