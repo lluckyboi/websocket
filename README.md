@@ -131,7 +131,6 @@ func (conn *MyConn)SetIOLog(need bool)
 
 - [ ] 客户端封装
 
-- [ ] 分布式websocket
 
 ## 🧪实现原理
 
