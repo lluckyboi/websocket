@@ -145,8 +145,10 @@ func (conn *MyConn) Write(msg []byte, opcode int, filename ...string) error {
 			conn.mutx.Unlock()
 			if opcode == 1 {
 				log.Println("send:", string(p[ts.datast:uint64(len(msg))+ts.datast]))
-			} else {
+			} else if opcode == 2 {
 				log.Println("send file success")
+			} else if opcode == 8 {
+				log.Println("send close msg success")
 			}
 			break
 		}
