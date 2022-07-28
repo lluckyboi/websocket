@@ -137,10 +137,12 @@ func (conn *MyConn) Write(msg []byte, opcode int, filename ...string) error {
 			if err != nil {
 				return err
 			}
+			conn.mutx.Lock()
 			_, err = conn.Conn.Write(p[:i+ts.datast+1])
 			if err != nil {
 				return err
 			}
+			conn.mutx.Unlock()
 			if opcode == 1 {
 				log.Println("send:", string(p[ts.datast:uint64(len(msg))+ts.datast]))
 			} else {

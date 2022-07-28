@@ -3,6 +3,7 @@ package MyWebsocket
 import (
 	"net"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -21,16 +22,12 @@ const (
 	DefaultPingWait    = 30 * time.Second
 )
 
-type Msg struct {
-	Typ     int
-	content []byte
-}
-
 type MyConn struct {
 	Conn                            net.Conn
 	ReadBufferSize, WriteBufferSize uint64
 	PingTimeOut                     func() time.Time
 	Opts                            ConnOptions
+	mutx                            sync.Mutex
 }
 
 type Upgrader struct {

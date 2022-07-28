@@ -25,7 +25,10 @@ func (conn *MyConn) ReadMsg() (messagetype int, p []byte, err error) {
 			log.Printf("read  %d Bytes:%b", n, msbuff[:n])
 		}
 		if err != nil {
-			return -1, nil, errors.New("read data err:" + err.Error())
+			if err.Error() != errors.New("read tcp 127.0.0.1:9924->127.0.0.1:56786: i/o timeout").Error() {
+				return -1, nil, errors.New("read data err:" + err.Error())
+			}
+			return -1, nil, errors.New("心跳超时 正常关闭")
 		}
 		//如果消息大小大于ReadBufferSize 自动扩容
 		if uint64(n) > conn.ReadBufferSize {
