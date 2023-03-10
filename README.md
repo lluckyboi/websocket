@@ -173,13 +173,3 @@ func (conn *MyConn)SetIOLog(need bool)
 **第三种**是占用binary，约定当数据帧为二进制数据时，Payload Data中的前20个字节为文件名(xxx.png等等)
 
 目前采用第三种(不会被普通客户端识别为异常数据帧)
-
-## 📑Reference
-
-[后端2021红岩课件-websocket]:
-
-https://www.yuque.com/gyxffu/uv3zph/gpib7h#Websocket
-
-[网络图片]：
-
-![img](https://img-blog.csdn.net/20140306233501843?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMDQ4NzU2OA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
